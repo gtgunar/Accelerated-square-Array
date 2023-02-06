@@ -10,6 +10,7 @@ of sqrt(n) long vectors, or carry changes trough.
 a,b,c,d are vectors stored by address in the upper vector, with their respective content below them, from bottom up
 
 order of growth:
+
 a b c d
 
 7 8 9 _
@@ -19,6 +20,7 @@ a b c d
 1 2 5 10 
 
 order of data:
+
 a b c d
 
 3 6 9 _
@@ -69,3 +71,5 @@ to have constant C access time and C-th root of N delete/insert time.
 **Assuming proper memory management, just in time creation of new members or some other means of handling the special case of balancing
 to beyond the last element.
 ***incrementing a vector:here it means, adding 1 element
+
+Márton Attila,2023
