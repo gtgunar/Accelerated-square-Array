@@ -11,14 +11,20 @@ a,b,c,d are vectors stored by address in the upper vector, with their respective
 
 order of growth:
 a b c d
+
 7 8 9 _
+
 3 4 6 11
+
 1 2 5 10 
 
 order of data:
 a b c d
+
 3 6 9 _
+
 2 5 8 11
+
 1 4 7 10
 
 Balancing:
