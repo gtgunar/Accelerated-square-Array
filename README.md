@@ -44,7 +44,6 @@ it takes x+1 elements, to increment each of the member vectors.
 Therefore, x is the integer part of the square root of n.
 
 Insertion:
-
 insertion happens by finding the vector where the insertion index belongs, then inserting there, to the correct place, 
 and then doing a balancing as necesseary.
 Since the number of blocks, and the amount of them being incremented is only dependent on n, 
