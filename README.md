@@ -56,6 +56,7 @@ one can easily find the correct insertion point:
 
 Deletion:
 happens in a similar manner as insertion, but looks for the place of balance, at a 1 earlier position.
+
 Access:
 Correct place is calculated like in insertion, but no balancing is needed, not even on writing.
 
