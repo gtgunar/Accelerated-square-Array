@@ -47,7 +47,8 @@ Insertion:
 insertion happens by finding the vector where the insertion index belongs, then inserting there, to the correct place, 
 and then doing a balancing as necesseary.
 Since the number of blocks, and the amount of them being incremented is only dependent on n, 
-one can easily find the correct insertion point:
+
+  one can easily find the correct insertion point:
   division of index by x, if the loading is happening at the x+1-th vector(it is the case if n-x*x<x).
   in other case: division by x+1. If the correct block is less than the increment count, then the division gives the correct block.
   if it is bigger, the incremented part's total population should be subtracted from the index,
@@ -65,7 +66,8 @@ notes:
   one can easily cache them, and even check if they need updating at all.
   -since serial peek means accessing a member vector serially, it has an almost equal cache coherence compared to a regular vector.
   -mutation at the end is either constant time, or sqrt(n)/2 on average( both cases have 50% chance).
-
+  -the accelerated square array is faster than the hashed array tree, as insertion in the middle is linear time for the latter.
+  
 *The same concept can be taken further, by using more, C amount of indirection, 
 to have constant C access time and C-th root of N delete/insert time.
   Doing so, dynamically, can make the balance&tradeoffs, between access and insert/delete by modified on the fly.
