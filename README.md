@@ -64,12 +64,24 @@ notes:
   -Since many intermediate calculation only depends on n, 
   one can easily cache them, and even check if they need updating at all.
   -since serial access means accessing a member vector serially, it has an almost equal cache coherence compared to a regular vector.
-  -insertion at the end is either constant time, or sqrt(n)/2 on average( both cases have 50% chance).
+  -insertion/deletion at the end is either constant time, or sqrt(n)/2 on average( both cases have 50% chance).
+  
 
 *The same concept can be taken further, by using more, C amount of indirection, 
 to have constant C access time and C-th root of N delete/insert time.
+  Doing so, dynamically, can make the balance&tradeoffs, between access and insert/delete by modified on the fly.
+  For eg.:C=1 amount of indirection leads to an ordinary vector.
+
 **Assuming proper memory management, just in time creation of new members or some other means of handling the special case of balancing
 to beyond the last element.
+
 ***incrementing a vector:here it means, adding 1 element
+
+
+
+Illustration for theoretical speed comparison, between: it, ordinary arrays, and red-black trees, assuming worst case,
+with manually adjustable relative commonness, of access, and insertion/deletion.
+https://www.desmos.com/calculator/v7auxvylnh
+
 
 Márton Attila,2023
