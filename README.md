@@ -1,13 +1,13 @@
 # Accelerated-square-Array
 Sequential data structure
 
-A new data structure, aimed to have a constant access time, and sqrt(n) insert/delete time*, where n is the number of contained elements.
-It works by instead of storing a single vector of elements, it stores a vector of vector*-s.
-The "upper" vector (which stores the addresses) approximately contains sqrt(n) amount of elements, and the lower vectors also have
-Approximately sqrt(n) elements. This makes sqrt(n) insertion and deletion times possible, by only needing to insert into the middle
-of sqrt(n) long vectors, or carry changes trough.
+A new data structure, aimed to have a constant peek time, and sqrt(n) mutation time*, where n is the number of contained elements.
+It works by instead of storing a single vector of elements, it stores a vector of vector-s.
+The "upper" vector (which stores the references) approximately contains sqrt(n) amount of elements, and the lower vectors also have
+Approximately sqrt(n) elements. This makes sqrt(n) mutation time possible, by only needing to mutationt in the middle
+of one sqrt(n) long vectors, and then carry at most sqrt(n) changes trough.
 
-a,b,c,d are vectors stored by address in the upper vector, with their respective content below them, from bottom up
+a,b,c,d are vectors stored by address in the upper vector, with their respective content below them, from bottom up (underscore being the next insertion point and 11 being the next deletion point in both cases).
 
 order of growth:
 
@@ -37,11 +37,11 @@ By doing this if necessary, any arbitrary insertion can be followed by shifting 
 without changing order.
 
 preffered shape:
-The preffered shape is a square that grows first to a new array to the right, then increments every member in order***. When , the new array
-is, at last incremented, a new square shape is reached. 
-Assuming an x long, x tall square, it takes x new elements for the next vector to reache the height of the other vectors, and then, 
-it takes x+1 elements, to increment each of the member vectors. 
-Therefore, x is the integer part of the square root of n.
+The preffered shape is a square that grows first to a new array to the right (new array at the end), then increments every member in order***. When the new array is at last incremented, a new square shape is reached. 
+x is the integer part (downround/floor) of the square root of n.
+Assuming an x long, x tall perfect square, it takes x new elements for the next vector to reach the height of the other vectors, and then, 
+it takes x+1 elements, to increment each of the member vectors, corresponding to the relation between an x and x+1 sided square:
+x^2+2*x+1=(x+1)^2.
 
 Insertion:
 insertion happens by finding the vector where the insertion index belongs, then inserting there, to the correct place, 
@@ -57,15 +57,14 @@ one can easily find the correct insertion point:
 Deletion:
 happens in a similar manner as insertion, but looks for the place of balance, at a 1 earlier position.
 
-Access:
+Access/Peek:
 Correct place is calculated like in insertion, but no balancing is needed, not even on writing.
 
 notes:
   -Since many intermediate calculation only depends on n, 
   one can easily cache them, and even check if they need updating at all.
-  -since serial access means accessing a member vector serially, it has an almost equal cache coherence compared to a regular vector.
-  -insertion/deletion at the end is either constant time, or sqrt(n)/2 on average( both cases have 50% chance).
-  
+  -since serial peek means accessing a member vector serially, it has an almost equal cache coherence compared to a regular vector.
+  -mutation at the end is either constant time, or sqrt(n)/2 on average( both cases have 50% chance).
 
 *The same concept can be taken further, by using more, C amount of indirection, 
 to have constant C access time and C-th root of N delete/insert time.
@@ -79,9 +78,10 @@ to beyond the last element.
 
 
 
-Illustration for theoretical speed comparison, between: it, ordinary arrays, and red-black trees, assuming worst case,
-with manually adjustable relative commonness, of access, and insertion/deletion.
-https://www.desmos.com/calculator/v7auxvylnh
+Illustration for theoretical speed comparison, between: the accelerated square array, ordinary vectors, and balanced trees, assuming worst case,with manually adjustable relative commonness, of peek, and imutation:
 
+https://www.desmos.com/calculator/v7auxvylnh
+S=1.0:peek only
+S=0.0:mutation only
 
 Márton Attila,2023
