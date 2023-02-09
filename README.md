@@ -83,7 +83,9 @@ to beyond the last element.
 Illustration for theoretical speed comparison, between: the accelerated square array, ordinary vectors, and balanced trees, assuming worst case,with manually adjustable relative commonness, of peek, and imutation:
 
 https://www.desmos.com/calculator/v7auxvylnh
+
 S=1.0:peek only
+
 S=0.0:mutation only
 
 Márton Attila,2023
