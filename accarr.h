@@ -17,8 +17,8 @@ class accarr
     public:
     accarr():metaData(0)
         {
-        content.push_back(SQ<T>());
-        content.push_back(SQ<T>());
+        content.push_back(new SQ<T>());
+        content.push_back(new SQ<T>());
         }
     int getPop()const{return metaData.getPop();}
 
@@ -53,7 +53,7 @@ class accarr
 
     
     ~accarr(){for(auto i: content)delete i;}
-    private:
+    //private:
     accarr_innerData metaData;
     deque<SQ<T>*> content;
     void balanceShift(int from,int to)/////////////////////////////////////////////

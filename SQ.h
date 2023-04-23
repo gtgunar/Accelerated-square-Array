@@ -19,7 +19,8 @@ namespace StationaryQueue
             deque<T>* data;
 
         public:
-
+            SQ():offset(0)//offset:arbitrary, might find better
+                {data=new deque<T>(0);}
             SQ(int _size):offset(_size/2)//offset:arbitrary, might find better
                 {data=new deque<T>(_size);}
             SQ(const SQ& x, int _size):offset(_size/2)//might end up using resize instead

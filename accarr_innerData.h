@@ -86,14 +86,20 @@ class accarr_innerData
 
     void decPop()//assumed to be called from delete
         {
-        if(population>0)
+        if(population>1)
             {
             population--;
-            recalculate();
             population--;
             recalculate();
             coldPlace=hotPlace;
             population++;
+            recalculate();
+            }
+        else
+            {
+            coldPlace=pair<int,int>(0,0);
+            population--;
+            recalculate();
             }
         }
 
