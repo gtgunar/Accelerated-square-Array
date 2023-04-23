@@ -25,7 +25,7 @@ class accarr
     T& refAt(int index)const
         {
         auto pos=metaData.getRelPos(index);
-        return content[pos.first]->at(pos.second);
+        return content[pos.first]->access(pos.second);
         }
 
     void insert(int index,const T& value)

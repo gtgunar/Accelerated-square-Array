@@ -37,7 +37,7 @@ namespace StationaryQueue
             void addTo(const T&x,int index)
                 {
                 int ShiftedPlace=index+offset;
-                data->insert(data.begin()+(ShiftedPlace-( ShiftedPlace >= data->size() )*data->size()),x) ;
+                data->insert(data->begin()+(ShiftedPlace-( ShiftedPlace >= data->size() )*data->size()),x) ;
                 if( ShiftedPlace <= data->size())
                     {offset++;}
                 }
@@ -45,7 +45,7 @@ namespace StationaryQueue
             void deleteFrom(int index)
                 {
                 int ShiftedPlace=index+offset;
-                data->erase(data.begin()+(ShiftedPlace-( ShiftedPlace >= data->size() )*data->size())) ;
+                data->erase(data->begin()+(ShiftedPlace-( ShiftedPlace >= data->size() )*data->size())) ;
                 if( ShiftedPlace <= data->size())
                     {offset--;}
                 }
@@ -73,10 +73,10 @@ namespace StationaryQueue
                 }
 
             void push_front(const T&x)
-                {addto(x,0);}
+                {addTo(x,0);}
 
             void push_back(const T&x)
-                {addto(x,data->size()-1);}
+                {addTo(x,data->size()-1);}
             
             T pop_back()
                 {T temp=access(data->size()-1);deleteFrom(data->size()-1);return temp;}
