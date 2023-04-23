@@ -5,8 +5,10 @@
 #include<cstdlib>
 #include<time.h>
 #include"accarr.h"
+#include<thread>
+#include"SQ.h"
 using namespace std;
-
+/*
 void doTask(vector<int>& controlSample,accarr<int>& tesztTarget,int task,int value,int value2)
     {
     switch(task)
@@ -21,7 +23,7 @@ void doTask(vector<int>& controlSample,accarr<int>& tesztTarget,int task,int val
         }break;//insert
         /*case 2:{
 
-        }break;//getat*/
+        }break;//getat*//*
         case 2:{
                 if(controlSample.size()>0&&controlSample.size()>=value){
                 controlSample.erase(controlSample.begin()+value);
@@ -32,8 +34,8 @@ void doTask(vector<int>& controlSample,accarr<int>& tesztTarget,int task,int val
     }
 bool isSame(vector<int>& controlSample,accarr<int>& tesztTarget)
     {
-    if(controlSample.size()!=tesztTarget.population)
-    {cout<<"hossz: "<<controlSample.size()<<", "<<tesztTarget.population;return false;}
+    if(controlSample.size()!=tesztTarget.getPop())
+    {cout<<"hossz: "<<controlSample.size()<<", "<<tesztTarget.getPop();return false;}
     bool toret=true;
     int a;
     for(int i=0;i<controlSample.size();i++)
@@ -61,36 +63,52 @@ void bruteTest(vector<int>& a,accarr<int>& b){
         cout<<endl<<endl<<"test:good"<<endl;
         }
     else{cout<<"!!!";}
-    }
+    }*/
 int main()
-{
-    accarr<int> teszted;
-
+{   
+    teszting();
+    /*vector<thread*>szalak;
+    szalak.resize(24);
+    for(int n=0;n<24;n++)
+        {
+        szalak[n]=new thread([](){StationaryQueue::test_speed(10000,0);}); 
+        }
+    
+    auto sqstart =chrono::steady_clock::now();
+    thread vecthread([](){
+    auto vecstart=chrono::steady_clock::now();
     for(int i=0;i<20;i++)
         {
-        cout<<"\t"<<i<<endl<<endl;
-        teszted.population=i;
-        for(int j=0;j<i;j++)
-            {cout<<"j:"<<j<<" got: "<<teszted.getRelPos(j).first<<"/"<<teszted.getRelPos(j).second<<endl;}
-
+        for(int j=0;j<10000;j++)
+            {
+            StationaryQueue::test_speed(10000,1);
+            }
+        cout<<endl<<"A:"<<(chrono::steady_clock::now()-vecstart).count()/1000000<<endl;
+        vecstart=chrono::steady_clock::now();
         }
-    srand(time(0));
-    cout<<rand()%7<<","<<rand()%7<<endl;
-    vector<int> a;
-    accarr<int> b;
-    a.insert(a.begin(),77);
-    b.insert(0,77);
-    for(int i=0;i<100;i++)
-        {doTask(a,b,1,0,rand()%1000);}
-    for(int i=0;i<100;i++)
-        {doTask(a,b,0,i,i);}
-    colog(a,b);
-    for(int i=92;i<94;i++)
-        {doTask(a,b,0,i,i);doTask(a,b,2,i,i);}
-    colog(a,b);
-    b[27]=222;
-    cout<<b[27]<<endl;
-    ///
-    bruteTest(a,b);
+    });
+    thread sqthread([](){
+    auto sqstart=chrono::steady_clock::now();
+    
+    for(int i=0;i<20;i++)
+        {
+        for(int j=0;j<10000;j++)
+            {
+            StationaryQueue::test_speed(10000,0);
+            }
+        cout<<endl<<"B:"<<(chrono::steady_clock::now()-sqstart).count()/1000000<<endl;
+        sqstart=chrono::steady_clock::now();
+        }
+    });
+    StationaryQueue::SQ<int> a(100);
+    a.access(10)= a.access(20);
+    a.revplace(17);
+    vecthread.join();
+    sqthread.join();
+*/
+
     return 0;
 }
+
+/*for(int i=1000;i<1100;i++){
+    cout<<i<<" : "<<SQRT(i)<<endl;}*/

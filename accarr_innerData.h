@@ -34,6 +34,9 @@ class accarr_innerData
 
     pair <int,int> getHotPlace()const
         {return hotPlace;}
+    
+    pair <int,int> getColdPlace()const
+        {return coldPlace;}
 
     pair<int,int>getRelPos(int index)const//the pair of block-index and the within block index for a given index value
         {
