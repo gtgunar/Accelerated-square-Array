@@ -11,6 +11,13 @@ using namespace std;
 namespace StationaryQueue
     {
     template<typename T>
+    void swapAround(T*a,T*b)
+        {
+        T temp=*a;
+        *a=*b;
+        *b=temp;
+        }
+    template<typename T>
     class SQ// stationary queue, with fix size, single memory access on combined en-/dequeue, both ways
         {
         private:
@@ -31,15 +38,37 @@ namespace StationaryQueue
                 }
             T& access(int index)//random access
                 {
+                cout<<"access 0"<<endl;
+                if(!data->size())
+                    {cout<<"nonexistent data is read"<<endl;
+                    return data->at(0) ;}
+                cout<<"access 1"<<endl;
                 int ShiftedPlace=index+offset;
-                return data->at(ShiftedPlace-( ShiftedPlace >= data->size() )*data->size()) ;
+                cout<<"access2"<<endl;
+                int actualPlace;
+                cout<<data->size()<<endl;
+                if(ShiftedPlace >= data->size())
+                    {actualPlace=ShiftedPlace-data->size();}
+                else
+                    {actualPlace=ShiftedPlace;}
+                cout<<" ShiftedPlace: "<<ShiftedPlace<<" actualPlace: "<<actualPlace<<" data->size(): "<<data->size()<<endl;
+                return data->at(actualPlace) ;
                 }
 
-            void addTo(const T&x,int index)
+            void addTo(int index,const T&x)
                 {
+                cout<<"addto1"<<endl;
                 int ShiftedPlace=index+offset;
-                data->insert(data->begin()+(ShiftedPlace-( ShiftedPlace >= data->size() )*data->size()),x) ;
-                if( ShiftedPlace <= data->size())
+                int actualPlace;
+ cout<<"addto2"<<endl;
+                if(ShiftedPlace >= data->size())
+                    {actualPlace=ShiftedPlace-data->size();}
+                else
+                    {actualPlace=ShiftedPlace;}
+ cout<<"addto3"<<endl;
+                data->insert(data->begin()+actualPlace,x) ;
+                 cout<<"addto4"<<endl;
+                if( ShiftedPlace < data->size())
                     {offset++;}
                 }
             
@@ -47,15 +76,16 @@ namespace StationaryQueue
                 {
                 int ShiftedPlace=index+offset;
                 data->erase(data->begin()+(ShiftedPlace-( ShiftedPlace >= data->size() )*data->size())) ;
-                if( ShiftedPlace <= data->size())
+                if( ShiftedPlace < data->size())
                     {offset--;}
                 }
 
             T placing(const T&x)//combied popfront,pushback
                 {
+                cout<<"plac1"<<endl;
                 T temp=x;
-                swap(temp, access(0));//temp holds the old value now
-
+                swapAround(&temp, &access(0));//temp holds the old value now
+cout<<"plac2"<<endl;
                 offset++;
                 offset%=data->size();
 
@@ -65,7 +95,7 @@ namespace StationaryQueue
             T revplace(const T&x)//combied popback,pushfront
                 {
                 T temp=x;
-                swap(temp, access(data->size()-1));//temp holds the old value now
+                swapAround(&temp, &access(data->size()-1));//temp holds the old value now
 
                 offset+=data->size()-1;//+=szie, and then decrement
                 offset%=data->size();
@@ -74,16 +104,16 @@ namespace StationaryQueue
                 }
 
             void push_front(const T&x)
-                {addTo(x,0);}
+                {cout<<"push_front"<<endl;addTo(0,x);}
 
             void push_back(const T&x)
-                {addTo(x,data->size()-1);}
+                {cout<<"push_back "<<endl;addTo(data->size()-1,x);}
             
             T pop_back()
-                {T temp=access(data->size()-1);deleteFrom(data->size()-1);return temp;}
+                {cout<<"pop_back "<<endl;T temp=access(data->size()-1);deleteFrom(data->size()-1);return temp;}
 
             T pop_front()
-                {T temp=access(0);deleteFrom(0);return temp;}
+                {cout<<"pop_front "<<endl;T temp=access(0);deleteFrom(0);return temp;}
 
             ~SQ()
                 {delete data;}

@@ -4,6 +4,14 @@
 #include<iostream>
 using namespace std;
 
+pair<int,int> divmod(int a,int b)
+    {
+    if(b) 
+        return pair<int,int>(a/b,a%b); 
+    else 
+        return pair<int,int>(0,0) ;
+    }
+        
 unsigned SQRT(unsigned x)//integer square root
     {
     unsigned toret=1;
@@ -19,6 +27,7 @@ unsigned SQRT(unsigned x)//integer square root
 
 class accarr_innerData
     {
+    public:////////////////TODO:DELETE
     int population;//actual population, NOT TO BECHANGED DIRECTLY, the setter will handle each here
     int popsqrt;//floor(sqrt(population)) <=> sqrt(popsn)
     int popextra;//current value of extra population, population-popsn
@@ -40,15 +49,19 @@ class accarr_innerData
 
     pair<int,int>getRelPos(int index)const//the pair of block-index and the within block index for a given index value
         {
+        cout<<"////////////////////////////////"<<endl;
+        cout<<"getRelPos called with "<<index<<" pop: "<<population<<endl;
         if(endLoad)
-            {return pair<int,int>(index/popsqrt,index%popsqrt);}
+            {cout<<"getrelpos:branch1"<<endl;return divmod(index,popsqrt);}
         else
             {
-            if((popextra-popsqrt)<=index/(popsqrt+1))//within the incremented block
-                {return pair<int,int>(index/(popsqrt+1),index%(popsqrt+1));}
+            if((popextra-popsqrt)>=index/(popsqrt+1))//within the incremented block
+                {cout<<"getrelpos:branch2"<<endl;return divmod(index,popsqrt+1);}
             else
                 {
                 int uninced=index-(popextra-popsqrt)*(popsqrt+1);//remaining population stored in nonincremented zone
+                cout<<"getrelpos:branch3"<<endl;
+                cout<<"popextra "<<popextra<<" popsqrt "<<popsqrt<<" index "<<index<<" uninced "<<uninced<<endl;
                 return pair<int,int>(popextra-popsqrt + uninced/popsqrt , uninced%popsqrt);//inc-ed length+rest
                 }
             }
@@ -57,13 +70,13 @@ class accarr_innerData
         }
 
     void recalculate()
-        {
+        {//////////////////////////////////////////////////////////////////////
         popsqrt=SQRT(population);
         popextra=population-popsqrt*popsqrt;
         extraCapacity=2*popsqrt;
-        endLoad=popextra<=popsqrt;
+        endLoad=popextra<=popsqrt;//might be strict
         if(endLoad)
-            {hotPlace=pair<int,int>(popsqrt+1,popextra);}
+            {hotPlace=pair<int,int>(popsqrt,popextra);}///////+(population>0)
         else
             {hotPlace=pair<int,int>(popextra-popsqrt,popsqrt+1);}      
         }
@@ -143,4 +156,5 @@ class accarr_innerData
             cout<<"/////////////"<<endl;
             }
         }
+    
 #endif

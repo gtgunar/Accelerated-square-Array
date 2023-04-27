@@ -67,9 +67,34 @@ int main()
     {   
     vector<int> x;
     accarr<int> y;
+    y.insert(0,10);
     y.metaData.logMe();
-    y.insert(0,0);
+    y.content[0]->log();
+    cout<<y.getAt(0)<<endl;
+    y.insert(0,3);
+    y.insert(0,2);
+    y.insert(0,30);
+    y.insert(0,67);
+   /* for(int i=0;i<20;i++)
+        {
+        for(int j=0;j<i;j++)
+            {
+            auto a=y.metaData.getRelPos(j);
+            cout<<"outcome:"<<a.first<<", "<<a.second;
+            
 
+            }
+        y.metaData.incPop();
+        }*/
+    //cout<<y.getAt(0)<<endl;
+    //cout<<y.getAt(1)<<endl;
+    //cout<<y[0]<<endl;
+    /*cout<<y[1]<<endl;
+    y.content[0]->log();
+    y[0]=5;
+    y[1]=6;
+    y.content[0]->log();
+    y[4]=100;*/
     return 0;
     }
 
