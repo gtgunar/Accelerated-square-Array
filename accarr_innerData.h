@@ -2,11 +2,18 @@
 #define ACCAR_INNERDATA_H
 #include<tuple>
 #include<iostream>
-using namespace std;
+using  std::vector;
+using  std::cout;
+using  std::endl;
+using  std::deque;
+using  std::pair;
+using  namespace std::chrono;
 
 pair<int,int> divmod(int a,int b)
     {
-    if(b) 
+    cout<<"DIVMOD called with "<<a<<", "<<b<<endl;    
+    if(!a)return pair<int,int>(0,0) ;
+    else if(b) 
         return pair<int,int>(a/b,a%b); 
     else 
         return pair<int,int>(0,0) ;
@@ -51,8 +58,9 @@ class accarr_innerData
         {
         cout<<"////////////////////////////////"<<endl;
         cout<<"getRelPos called with "<<index<<" pop: "<<population<<endl;
+        logMe();
         if(endLoad)
-            {cout<<"getrelpos:branch1"<<endl;return divmod(index,popsqrt);}
+            {cout<<"getrelpos:branch1"<<endl;return divmod(index,popsqrt);}//-1
         else
             {
             if((popextra-popsqrt)>=index/(popsqrt+1))//within the incremented block
@@ -65,55 +73,55 @@ class accarr_innerData
                 return pair<int,int>(popextra-popsqrt + uninced/popsqrt , uninced%popsqrt);//inc-ed length+rest
                 }
             }
-        
-        
         }
 
-    void recalculate()
+    bool recalculate()
         {//////////////////////////////////////////////////////////////////////
+        bool toret=false;
+        auto oldSQRT=popsqrt;
         popsqrt=SQRT(population);
+        if(oldSQRT!=popsqrt)
+            {toret= true;}
         popextra=population-popsqrt*popsqrt;
         extraCapacity=2*popsqrt;
-        endLoad=popextra<=popsqrt;//might be strict
+        endLoad=popextra<popsqrt;//might be strict
         if(endLoad)
             {hotPlace=pair<int,int>(popsqrt,popextra);}///////+(population>0)
         else
-            {hotPlace=pair<int,int>(popextra-popsqrt,popsqrt+1);}      
+            {hotPlace=pair<int,int>(popextra-popsqrt,popsqrt+1);}   
+        return toret;   
         }
 
     accarr_innerData(int pop)
         {
-        population=pop-1;
-        recalculate();
-        coldPlace=hotPlace;
         population=pop;
         recalculate();
+        coldPlace=hotPlace;
         }
 
-    void incPop()//assumed to be called from insert
+    bool incPop()//assumed to be called from insert
         {
         coldPlace=hotPlace;
         population++;
-        recalculate();
+        return recalculate();
         }
 
-    void decPop()//assumed to be called from delete
+    bool decPop()//assumed to be called from delete
         {
-        if(population>1)
+        if(population>1)///////////////////////////////////////////////////////////////////////////////////////////////////////////////////might be 1
             {
             population--;
             population--;
             recalculate();
             coldPlace=hotPlace;
             population++;
-            recalculate();
             }
-        else
+        else if(population==1)
             {
             coldPlace=pair<int,int>(0,0);
             population--;
-            recalculate();
             }
+        return recalculate();
         }
 
     void logMe()const

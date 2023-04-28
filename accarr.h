@@ -8,7 +8,13 @@
 #include<deque>
 #include"SQ.h"
 #include"accarr_innerData.h"
-using namespace std;
+
+using  std::vector;
+using  std::cout;
+using  std::endl;
+using  std::deque;
+using  namespace std::chrono;
+
 using namespace StationaryQueue;
 
 template<typename T>//depth=2
@@ -24,29 +30,40 @@ class accarr
 
     T& refAt(int index)const
         {
+        cout<<"refat started"<<endl;
         auto pos=metaData.getRelPos(index);
         cout<<"index: "<<index<<" Hely: "<<pos.first<<", "<<pos.second<<endl;
+        content[pos.first]->log();
         return content[pos.first]->access(pos.second);
         }
 
     void insert(int index,const T& value)
         {
         auto to=metaData.getRelPos(index);   
-        cout<<"insert0"<<endl;
-        cout<<to.first<<endl;
+        //cout<<"insert0"<<endl;
+        cout<<endl<<to.first<<endl;
         content[to.first]->addTo(to.second,value); 
         cout<<"insert1"<<endl;
         balanceShift(to.first , metaData.getHotPlace().first);
-        metaData.incPop();
-        content.push_back(new SQ<T>());//memory leak but good for testing the rest
+        auto todo=metaData.incPop();
+        if (todo)
+            content.push_back(new SQ<T>());
+        cout<<"insert done"<<endl;
+        metaData.logMe();
         }
 
     void erase(int index)
         {
-        auto to=metaData.getRelPos(index);
-        content[to.first]->deleteFrom(to.second);   
-        balanceShift(metaData.getColdPlace().first , to.first);
-        metaData.decPop();
+        if(content.size()==0){cout<<"DEL FROM EMPTY"<<endl;}
+        cout<<"\terase 0"<<endl;
+        auto to=metaData.getRelPos(index);cout<<"\terase 1"<<endl;
+        content[to.first]->deleteFrom(to.second);   cout<<"\terase 2"<<endl;
+        balanceShift(metaData.getColdPlace().first , to.first);cout<<"erase 3"<<endl;
+        auto todo=metaData.decPop();cout<<"erase 4"<<endl;
+        if (todo&&(content.size())>1)
+            content.pop_back();
+        metaData.logMe();
+        cout<<"ERASEDONE---------------------------------"<<endl;
         }
 
     T& operator[](int index)

@@ -7,30 +7,51 @@
 #include"accarr.h"
 #include<thread>
 #include"SQ.h"
-using namespace std;
+#include<fstream>
 
-void doTask(vector<int>& controlSample,accarr<int>& tesztTarget,int task,int value,int value2)
+using  std::ofstream;
+using  std::vector;
+using  std::cout;
+using  std::cin;
+using  std::endl;
+using  std::deque;
+using  std::pair;
+using  std::max;
+using  std::string;
+using  namespace std::chrono;
+template<typename T>
+void doTask(vector<T>& controlSample,accarr<T>& tesztTarget,int task,int value,T value2)
     {
-    switch(task)
+    cout<<"task:"<<task<<":"<<value<<", "<<value2<<endl;
+    cout<<"meret"<<controlSample.size()<<endl;
+    if((controlSample.size()>value)||((value==0)&&(task==1)))
         {
-        case 0:{
-            controlSample[value]=value2;
-            tesztTarget[value]=value2;
-        }break;//setat
-        case 1:{
+        cout<<"task started"<<endl;
+        switch(task)
+            {
+            case 0:{  
+                controlSample[value]=value2;
+                tesztTarget[value]=value2;
+            }break;//setat
+            case 1:{
                 controlSample.insert(controlSample.begin()+value,value2);
                 tesztTarget.insert(value,value2);
-        }break;//insert
-        case 2:{
+            }break;//insert
+            case 2:{
                 if(controlSample.size()>0&&controlSample.size()>=value)
                     {
                     controlSample.erase(controlSample.begin()+value);
                     tesztTarget.erase(value);
                     }
-        }break;//delete
+            }break;//delete
+            }
+        
+        cout<<"task finished------------------------------------------------------------------------------------"<<endl;
         }
+    colog(controlSample,tesztTarget);
     }
-bool isSame(vector<int>& controlSample,accarr<int>& tesztTarget)
+template<typename T>
+bool isSame(vector<T>& controlSample,accarr<T>& tesztTarget)
     {
     if(controlSample.size()!=tesztTarget.getPop())
     {cout<<"hossz: "<<controlSample.size()<<", "<<tesztTarget.getPop();return false;}
@@ -42,59 +63,50 @@ bool isSame(vector<int>& controlSample,accarr<int>& tesztTarget)
         if(!toret)
             {
             cout<<endl<<"at:"<<i<<" "<< controlSample[i]<<"!="<<tesztTarget.getAt(i)<<endl;
-            cin>>a;
+            cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
             }
         }
 
     return toret;
     }
-void colog(vector<int>& controlSample,accarr<int>& tesztTarget)
+template<typename T>
+void colog(vector<T>& controlSample,accarr<T>& tesztTarget)
     {
-    for(int i=0;i<controlSample.size();i++)
-        {cout<< controlSample[i]<<"---"<<tesztTarget.getAt(i)<<endl;}
+    cout<<"COLOG:"<<controlSample.size()<<tesztTarget.getPop()<<endl;
+    for(int i=0;i<tesztTarget.getPop();i++)
+        {cout<< controlSample[i]<<"---"<<tesztTarget[i]<<endl;}
     cout<<endl;
     }
-void bruteTest(vector<int>& a,accarr<int>& b){
-    for(int i=0;i<200;i++)
-        {doTask(a,b,rand()%3,rand()%max(1,(int)a.size()),rand()%1000);}
+template<typename T>
+void bruteTest(vector<T>& a,accarr<T>& b,ofstream& logFile){
+    vector<string> szavak={"asd","qwe","asd2","qwasde","asqwed","qwqwre","ashd","qwfgk","astzud","qw4567e","adfgd","qwfffe","asdwer","qw4z8e","asfgfbd","qwse","artxthsd","qwcxvbne",};
+    for(int i=0;i<40;i++)
+        {doTask(a,b,rand()%3,rand()%max(1,(int)a.size()),rand()%20);}
+    cout<<"isSame chjecked"<<endl;
     if(isSame(a,b))
         {
-        cout<<endl<<endl<<"test:good"<<endl;
+        logFile<<"test:good,size="<<a.size()<<endl;
         }
-    else{cout<<"!!!";}
+    else{logFile<<"!!!"<<endl;}
     }
 int main()
     {   
-    vector<int> x;
-    accarr<int> y;
-    y.insert(0,10);
-    y.metaData.logMe();
-    y.content[0]->log();
-    cout<<y.getAt(0)<<endl;
-    y.insert(0,3);
-    y.insert(0,2);
-    y.insert(0,30);
-    y.insert(0,67);
-   /* for(int i=0;i<20;i++)
-        {
-        for(int j=0;j<i;j++)
-            {
-            auto a=y.metaData.getRelPos(j);
-            cout<<"outcome:"<<a.first<<", "<<a.second;
-            
-
-            }
-        y.metaData.incPop();
-        }*/
-    //cout<<y.getAt(0)<<endl;
-    //cout<<y.getAt(1)<<endl;
-    //cout<<y[0]<<endl;
-    /*cout<<y[1]<<endl;
-    y.content[0]->log();
-    y[0]=5;
-    y[1]=6;
-    y.content[0]->log();
-    y[4]=100;*/
+    ofstream errorlog("log.txt");
+    srand(system_clock::now().time_since_epoch().count());
+    vector<int>x;
+    accarr<int>y;
+    for(int i=0;i<2000000000;i++)
+    bruteTest(x,y,errorlog);
+    errorlog.close();
     return 0;
     }
 
+/*crashes:
+értékadás számból stringbe convertálásnál
+shifted place=actual place
+todo:getshiftedPos
+balanceshift to empty SQ
+1 0 0 task
+erase
+memleak from never dleteing empty SQs
+*/

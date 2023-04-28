@@ -5,8 +5,13 @@
 #include<iostream>//only for debugging
 #include<cstdlib>//only for debugging
 #include<chrono>//only for debugging
-
-using namespace std;
+#include<fstream>//only for debugging
+using  std::ofstream;
+using  std::vector;
+using  std::cout;
+using  std::endl;
+using  std::deque;
+using  namespace std::chrono;
 
 namespace StationaryQueue
     {
@@ -20,8 +25,8 @@ namespace StationaryQueue
     template<typename T>
     class SQ// stationary queue, with fix size, single memory access on combined en-/dequeue, both ways
         {
-        private:
-
+        //private:
+        public:
             short int offset;
             deque<T>* data;
 
@@ -36,48 +41,50 @@ namespace StationaryQueue
                 for(int i=0;i<x.size();i++)
                     {access(i)=x.access(i);}
                 }
-            T& access(int index)//random access
+            int getShiftedPos(int index)const
                 {
-                cout<<"access 0"<<endl;
                 if(!data->size())
-                    {cout<<"nonexistent data is read"<<endl;
-                    return data->at(0) ;}
-                cout<<"access 1"<<endl;
+                    {cout<<"nonexistent data is read"<<endl;return 0;}
+                 cout<<"getShiftedPos 0"<<endl;
+                cout<<"index: "<<index<<" offset: "<<offset<<endl;
+                cout<<"getShiftedPos 1"<<endl;
                 int ShiftedPlace=index+offset;
-                cout<<"access2"<<endl;
+                cout<<"getShiftedPos 2"<<endl;
                 int actualPlace;
-                cout<<data->size()<<endl;
+                cout<<"rawsize: "<<data->size()<<" offset: "<<offset<<endl;
                 if(ShiftedPlace >= data->size())
                     {actualPlace=ShiftedPlace-data->size();}
                 else
                     {actualPlace=ShiftedPlace;}
                 cout<<" ShiftedPlace: "<<ShiftedPlace<<" actualPlace: "<<actualPlace<<" data->size(): "<<data->size()<<endl;
-                return data->at(actualPlace) ;
+                cout<<"read data:"<<data->at(actualPlace)<<endl;
+                return actualPlace;
                 }
+            T& access(int index)//random access
+                {return data->at(getShiftedPos(index)) ;}
 
             void addTo(int index,const T&x)
                 {
-                cout<<"addto1"<<endl;
-                int ShiftedPlace=index+offset;
-                int actualPlace;
- cout<<"addto2"<<endl;
-                if(ShiftedPlace >= data->size())
-                    {actualPlace=ShiftedPlace-data->size();}
-                else
-                    {actualPlace=ShiftedPlace;}
- cout<<"addto3"<<endl;
-                data->insert(data->begin()+actualPlace,x) ;
-                 cout<<"addto4"<<endl;
-                if( ShiftedPlace < data->size())
+                cout<<"addTo called with :"<<index<<endl;
+                data->insert(data->begin()+getShiftedPos(index),x) ;
+                // cout<<"addto4"<<endl;
+                if( getShiftedPos(index) < data->size())
                     {offset++;}
+                offset%=data->size();
+                cout<<"newState: offset: "<<offset<<" size "<<data->size()<<endl;
                 }
             
             void deleteFrom(int index)
-                {
+                {if(!data->size()){cout<<"DELETE FROM EMPTY"<<endl;;}
                 int ShiftedPlace=index+offset;
                 data->erase(data->begin()+(ShiftedPlace-( ShiftedPlace >= data->size() )*data->size())) ;
+                cout<<"delmid"<<endl;
                 if( ShiftedPlace < data->size())
                     {offset--;}
+                if(data->size())
+                    offset%=data->size();
+                else
+                    {offset=0;}
                 }
 
             T placing(const T&x)//combied popfront,pushback
@@ -107,7 +114,7 @@ cout<<"plac2"<<endl;
                 {cout<<"push_front"<<endl;addTo(0,x);}
 
             void push_back(const T&x)
-                {cout<<"push_back "<<endl;addTo(data->size()-1,x);}
+                {cout<<"push_back "<<endl;addTo(data->size(),x);}//-1
             
             T pop_back()
                 {cout<<"pop_back "<<endl;T temp=access(data->size()-1);deleteFrom(data->size()-1);return temp;}
@@ -131,7 +138,22 @@ cout<<"plac2"<<endl;
                     {cout<<access(i)<<", ";}
                 cout<<endl<<"|///////////////////////////////|"<<endl;
                 }
-
+            void log(ofstream&x)
+                {
+                if(data->size())
+                    {
+                    x<<"/////////////////////////////////"<<endl;
+                    x<<" vectorsize: "<<data->size()<<" offset: "<<offset<<endl;
+                    x<<"raw elements:"<<endl;
+                    for(int i=0;i<data->size();i++)
+                        {x<<(*data)[i]<<", ";}
+                    x<<endl;
+                    x<<"read elements:"<<endl;   
+                    for(int i=0;i<data->size();i++)
+                        {x<<access(i)<<", ";}
+                    x<<endl<<"|///////////////////////////////|"<<endl;
+                    }
+                }
         };
     
     //Testing utilities
@@ -143,7 +165,7 @@ cout<<"plac2"<<endl;
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     void test(int meret)//test of validity, supposedly only prints on problems
             {
-            srand((chrono::system_clock::now()).time_since_epoch().count());
+            srand((system_clock::now()).time_since_epoch().count());
             deque<float> comparee;
             comparee.resize(meret);
             SQ<float> alany(meret);
@@ -197,7 +219,7 @@ void test_speed(int meret,bool which)//test of validity, supposedly only prints 
                 deque<float> comparee;
                 comparee.resize(meret);
                 SQ<float> alany(meret);
-            srand((chrono::system_clock::now()).time_since_epoch().count());
+            srand((system_clock::now()).time_since_epoch().count());
             
             
             for(int i=0;i<meret;i++)
