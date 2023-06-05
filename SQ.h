@@ -41,59 +41,40 @@ namespace StationaryQueue
             SQ(int _size):offset(_size/2)//offset:arbitrary, might find better
                 {data=new deque<T>(_size);}
            
-            T& access(int index)//random access
-                {
-                return data->at(index);
-                }
-            T& access(int index)const//random access
-                {
-                return data->at(index);
-                }
-            void addTo(int index,const T&x)
-                {
-                    data->insert(data->begin()+index,x) ;
 
-                }
-            //<+> works for revplace
-            //<+>= works for revplace, produces in place front pushpop
+            T& access(int index)//random access
+                {return data->at(index);}
+
+            T& access(int index)const//random access
+                {return data->at(index);}
+
+            void addTo(int index,const T&x)
+                {data->insert(data->begin()+index,x );}
+
             void deleteFrom(int index)
-                {
-                    data->erase(data->begin()+index) ;
-                }
+                {data->erase (data->begin()+index   );}
+
 
             T placing(const T&x)//popfront+pushback
                 {
-                push_back(x);
+                push_back (x);
                 return pop_front();
-                /*T temp=x;
-                
-
-                swapAround(&temp, &access(0));//temp holds the old value now
-                offset++;
-                offset%=data->size();
-                return temp;*/
                 }
             
             T revplace(const T&x)
                 {
                 push_front(x);
-                return pop_back();
-                /*T temp=x;
-
-                
-                swapAround(&temp, &access(data->size()-1));
-                offset+=data->size()-1;
-                offset%=data->size();
-                
-
-                return temp;*/
+                return pop_back ();
                 }
+
 
             void push_front(const T&x)  {addTo(0            ,x);}
             void push_back (const T&x)  {addTo(data->size() ,x);}
             
+
             T pop_back (){T temp=access(data->size()-1) ;deleteFrom(data->size()-1  );return temp;}
             T pop_front(){T temp=access(0)              ;deleteFrom(0               );return temp;}
+
 
             ~SQ(){delete data;}
             
@@ -128,5 +109,4 @@ namespace StationaryQueue
                 }
         };
     }
-    //Testing utilities
 #endif

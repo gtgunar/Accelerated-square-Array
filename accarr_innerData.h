@@ -11,7 +11,6 @@ using  namespace std::chrono;
 
 pair<int,int> divmod(int a,int b)
     {
-    //cout<<"DIVMOD called with "<<a<<", "<<b<<endl;    
     if(!a)return pair<int,int>(0,0) ;
     else if(b) 
         return pair<int,int>(a/b,a%b); 
@@ -34,14 +33,13 @@ unsigned SQRT(unsigned x)//integer square root
 
 class accarr_innerData
     {
-    public:////////////////TODO:DELETE
-    int population;//actual population, NOT TO BECHANGED DIRECTLY, the setter will handle each here
-    int popsqrt;//floor(sqrt(population)) <=> sqrt(popsn)
-    int popextra;//current value of extra population, population-popsn
-    int extraCapacity;//2*n
+    int population;         //actual population, NOT TO BECHANGED DIRECTLY, the setter will handle each here
+    int popsqrt;            //floor(sqrt(population)) <=> sqrt(popsn)
+    int popextra;           //current value of extra population, population-popsn
+    int extraCapacity;      //2*n
     pair<int,int> hotPlace;
     pair<int,int> coldPlace;
-    bool endLoad;//is the end the loadingplace
+    bool endLoad;           //is the end the loadingplace
 
     public:
 
@@ -55,13 +53,13 @@ class accarr_innerData
         {return coldPlace;}
 
     pair<int,int>getRelPos(int index)const//the pair of block-index and the within block index for a given index value
-        {//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        {
         if(popsqrt==0){return pair<int,int>(0 , 0);}
-        if(endLoad)
-            {return divmod(index,popsqrt);}//-1
+        if(endLoad)//is? the loading happen at the end
+            {return divmod(index,popsqrt);}
         else
             {
-            if((popextra-popsqrt)>index/(popsqrt+1))//within the incremented block{//////////////////////////////////////////////////////////////////////
+            if((popextra-popsqrt)>index/(popsqrt+1))//is? loading within the incremented block
                 {return divmod(index,popsqrt+1);}
             else
                 {
@@ -73,28 +71,13 @@ class accarr_innerData
     
     pair<int,int> calcHotPlace()const
         {
-        /*int tpopsqrt=SQRT(population+1);//1
-        int tpopextra=population+1-tpopsqrt*tpopsqrt;//2
-        int textraCapacity=2*tpopsqrt;// 2
-        int tendLoad=tpopextra<=tpopsqrt;//<:no
-        int rpopsqrt=(SQRT(population-1));
-        int rpopextra=population-1-rpopsqrt*rpopsqrt;//2
-        if(endLoad)
-            {return pair<int,int>(tpopsqrt+1-1,tpopextra-1);}//done
-        else
-            {
-            //if((tpopextra-tpopsqrt)>population/(tpopsqrt+1))//{//////////////////////////////////////////////////////////////////////
-            cout<<tendLoad<<"-------------------------------------------------------- "<<tpopextra<<", "<<tpopsqrt<<endl;
-            
-            return pair<int,int>(popextra-1,popsqrt);
-            }*/
-        if(popextra==2*popsqrt+1){/*cout<<"BRANCH1!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;*/return pair<int,int>(popsqrt+1,0);}
-        else if(popextra<popsqrt){/*cout<<"BRANCH2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;*/return pair<int,int>(popsqrt,popextra);}
-        else {/*cout<<"BRANCH3!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;*/return pair<int,int>(popextra-popsqrt,popsqrt);}
+        if(popextra==2*popsqrt+1){return pair<int,int>(popsqrt+1,0);}
+        else if(popextra<popsqrt){return pair<int,int>(popsqrt,popextra);}
+        else {return pair<int,int>(popextra-popsqrt,popsqrt);}
         }
 
     bool recalculate()
-        {//////////////////////////////////////////////////////////////////////
+        {
         bool toret=false;
         auto oldSQRT=popsqrt;
         popsqrt=SQRT(population);
@@ -103,12 +86,12 @@ class accarr_innerData
             {toret= true;}
         popextra=population-popsqrt*popsqrt;
         extraCapacity=2*popsqrt;
-        endLoad=popextra<popsqrt;//might be strict
+        endLoad=popextra<popsqrt;
         coldPlace=hotPlace;
         if(population>=1)
             {
             if(endLoad)
-                {hotPlace=calcHotPlace();}///////+(population>0)
+                {hotPlace=calcHotPlace();}
             else
                 {hotPlace=calcHotPlace();}
             }
@@ -148,18 +131,16 @@ class accarr_innerData
     void logMe()const
         {
         cout<<"population: "<<population<<endl<<
-       // "popsqrt: "<<popsqrt<<endl<<
-        //"popextra: "<<popextra<<endl<<
-       // "extraCapacity: "<<extraCapacity<<endl<<
+        "popsqrt: "<<popsqrt<<endl<<
+        "popextra: "<<popextra<<endl<<
+        "extraCapacity: "<<extraCapacity<<endl<<
         "hotPlaceBlock: "<<hotPlace.first<<endl<<
         "hotPlaceInner: "<<hotPlace.second<<endl<<
-      //  "coldPlaceBlock: "<<coldPlace.first<<endl<<
-      //  "coldPlaceInner: "<<coldPlace.second<<endl<<
+        "coldPlaceBlock: "<<coldPlace.first<<endl<<
+        "coldPlaceInner: "<<coldPlace.second<<endl<<
         "endload?:"<<endLoad<<endl;
         for(int i=0;i<population;i++)
-            {
-           // cout<<i<<":"<<getRelPos(i).first<<","<<getRelPos(i).second<<";"<<endl;
-            }
+            {cout<<i<<":"<<getRelPos(i).first<<","<<getRelPos(i).second<<";"<<endl;}
         }
 
     };
@@ -177,13 +158,11 @@ class accarr_innerData
             cout<<"/////////////"<<endl;
             alany.incPop();
             alany.logMe();
-            //alany.decPop();
             cout<<"/////////////"<<endl;
             }
         for(int i=0;i<18;i++)
             {
             cout<<"/////////////"<<endl;
-            //alany.incPop();
             alany.logMe();
             alany.decPop();
             cout<<"/////////////"<<endl;

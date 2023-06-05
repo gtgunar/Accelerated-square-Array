@@ -21,67 +21,17 @@ using  std::end;
 template<typename T>//depth=2
 class accarr
     {
-    public:
-    accarr():metaData(0)
-        {
-        content.push_back(new SQ<T>());
-        content.push_back(new SQ<T>());
-        }
-    int getPop()const{return metaData.getPop();}
-
-    T& refAt(int index)const
-        {
-        auto pos=metaData.getRelPos(index);
-        return content[pos.first]->access(pos.second);
-        }
-
-    void insert(int index,const T& value)
-        {
-        //content.push_back(new SQ<T>());
-        auto to=metaData.getRelPos(index);   ////////////////////////////////////////////////////////////////////////////////////////
-     //   cout<<"insertion to: "<<to.first<<", "<<to.second<<endl;
-     //   cout<<"hotplace to: "<<metaData.getHotPlace().first<<", "<<metaData.getHotPlace().second<<endl;
-        content[to.first]->addTo(to.second,value); 
-
-        balanceShift(to.first , metaData.getHotPlace().first);
-        auto todo=metaData.incPop();
-        if (todo)
-            content.push_back(new SQ<T>());
-        }
-
-    void erase(int index)
-        {
-        auto to=metaData.getRelPos(index);//cout<<"\terase 1"<<endl;
-        content[to.first]->deleteFrom(to.second); //  cout<<"\terase 2"<<endl;
-        balanceShift(metaData.getColdPlace().first , to.first);//cout<<"erase 3"<<endl;
-        auto todo=metaData.decPop();//cout<<"erase 4"<<endl;
-        if (todo&&(content.size())>2)////////////////////////////////////////////////////////////////////////////////////////
-            content.pop_back();
-        }
-
-    T& operator[](int index)
-        {return refAt(index);}
-
-    void setAt(int index, const T& value)const
-        {refAt(index)=value;}
-
-    T getAt(int index)const
-        {return refAt(index);}
-
-    
-    ~accarr(){for(auto i: content)delete i;}
-    //private:
+    private:
     accarr_innerData metaData;
     deque<SQ<T>*> content;
-    void balanceShift(int from,int to)/////////////////////////////////////////////
+    void balanceShift(int from,int to)
         {
-      //  cout<<"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx"<<endl;
-     //   logRaw();cout<<"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx"<<endl;
+
         if(from<to)
             {
             T temp=content[from]->pop_back();           
             for(int i=from+1;i<to;i++)
-                {temp=content[i]->revplace(temp);}//revplace
+                {temp=content[i]->revplace(temp);}
             content[to]->push_front(temp);
             }
         else if(from>to)
@@ -103,6 +53,53 @@ class accarr
             }
             cout<<endl;
         }
+    public:
+    accarr():metaData(0)
+        {
+        content.push_back(new SQ<T>());
+        content.push_back(new SQ<T>());
+        }
+    int getPop()const{return metaData.getPop();}
+
+    T& refAt(int index)const
+        {
+        auto pos=metaData.getRelPos(index);
+        return content[pos.first]->access(pos.second);
+        }
+
+    void insert(int index,const T& value)
+        {
+        auto to=metaData.getRelPos(index);  
+        content[to.first]->addTo(to.second,value); 
+
+        balanceShift(to.first , metaData.getHotPlace().first);
+
+        auto todo=metaData.incPop();
+        if (todo)
+            content.push_back(new SQ<T>());
+        }
+
+    void erase(int index)
+        {
+        auto to=metaData.getRelPos(index);
+        content[to.first]->deleteFrom(to.second);
+        balanceShift(metaData.getColdPlace().first , to.first);
+        auto todo=metaData.decPop();
+        if (todo&&(content.size())>2)
+            content.pop_back();
+        }
+
+    T& operator[](int index)
+        {return refAt(index);}
+
+    void setAt(int index, const T& value)const
+        {refAt(index)=value;}
+
+    T getAt(int index)const
+        {return refAt(index);}
+
+    
+    ~accarr(){for(auto i: content)delete i;}
     };
 
 
