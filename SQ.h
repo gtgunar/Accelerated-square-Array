@@ -27,7 +27,7 @@ namespace StationaryQueue
     {
     private:
     public:
-        short int offset;
+        int offset;
         deque<T> *data;
         void offsetmove(bool back = false)
         {

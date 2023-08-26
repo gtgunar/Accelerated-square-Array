@@ -7,7 +7,6 @@
 #include <fstream>
 #include "accarr.h"
 #include "SQ.h"
-#include "tests.h"
 
 using std::cin;
 using std::cout;

@@ -8,7 +8,8 @@
 #include "accarr.h"
 #include "SQ.h"
 #include "tests.h"
-#include "speedcoparison.h"
+#include "speedcomparison.h"
+#include "comparee.h"
 using std::cin;
 using std::cout;
 using std::deque;
@@ -23,11 +24,16 @@ using namespace StationaryQueue;
 
 int main()
 {
-    ofstream x("rawout.txt");
-    vector<float> a;
-    accarr<float> b;
-    for (int i = 0; i < 100; i++)
-        bruteTest(a, b, x);
-    cout << "DONE" << endl;
-    return 0;
+    listC<float> a;
+    tombC<float> b;
+    // need:btree
+    // b+/*tree
+    // maybe skiplist
+    controlMeres<float>(27, 400000);
+    compare<float>(a, 27, 400000);
+    compare<float>(b, 27, 400000);
+    /*
+    measure:
+    100 400 1000 etc
+    */
 }

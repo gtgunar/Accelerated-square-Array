@@ -116,14 +116,8 @@ public:
         coldPlace = hotPlace;
         if (population >= 1)
         {
-            if (endLoad)
-            {
-                hotPlace = calcHotPlace();
-            }
-            else
-            {
-                hotPlace = calcHotPlace();
-            }
+
+            hotPlace = calcHotPlace();
         }
         else
         {
