@@ -3,7 +3,7 @@
 #include <vector>
 #include <list>
 #include <chrono>
-
+#include <deque>
 using namespace std;
 template <typename T>
 class compareeInterFace
@@ -17,6 +17,18 @@ public:
     virtual T getAt(int index) const = 0;
     compareeInterFace() {}
     ~compareeInterFace() {}
+};
+template <typename T>
+class accarrC : public compareeInterFace<T>
+{
+    accarr<T> tartalom;
+
+public:
+    void addAt(int index, T content) { tartalom.insert(index, content); }
+    void removeAt(int index) { tartalom.erase(index); }
+    void setAt(int index, T content) { tartalom[index] = content; }
+    T getAt(int index) const { return tartalom[index]; }
+    accarrC() {}
 };
 template <typename T>
 class tombC : public compareeInterFace<T>
@@ -65,5 +77,17 @@ public:
         return *target;
     }
     listC() {}
+};
+template <typename T>
+class dequeC : public compareeInterFace<T>
+{
+    deque<T> tartalom;
+
+public:
+    void addAt(int index, T content) { tartalom.insert(tartalom.begin() + index, content); }
+    void removeAt(int index) { tartalom.erase(tartalom.begin() + index); }
+    void setAt(int index, T content) { tartalom[index] = content; }
+    T getAt(int index) const { return tartalom[index]; }
+    dequeC() {}
 };
 #endif

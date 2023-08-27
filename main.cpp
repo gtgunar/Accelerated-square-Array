@@ -24,16 +24,16 @@ using namespace StationaryQueue;
 
 int main()
 {
-    listC<float> a;
+    accarrC<float> alap;
     tombC<float> b;
-    // need:btree
-    // b+/*tree
-    // maybe skiplist
-    controlMeres<float>(27, 400000);
-    compare<float>(a, 27, 400000);
-    compare<float>(b, 27, 400000);
+
+    compare<float>(alap, 2000, 1000, 3); // OWN
+    compare<float>(b, 2000, 1000, 3);    // vector
     /*
     measure:
     100 400 1000 etc
+    multithreaded measure
+
+    inRAM data measure
     */
 }

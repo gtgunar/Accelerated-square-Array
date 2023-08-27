@@ -9,11 +9,15 @@ using std::pair;
 using std::vector;
 using namespace std::chrono;
 
-pair<int, int> divmod(int a, int b)
+pair<int, int> divmod(int a, int b) // 519-584 before rework
 {
-    if (!a)
-        return pair<int, int>(0, 0);
-    else if (b)
+    /* if (!a)
+         return pair<int, int>(0, 0);
+     else if (b)
+         return pair<int, int>(a / b, a % b);
+     else
+         return pair<int, int>(0, 0);*/
+    if (a && b)
         return pair<int, int>(a / b, a % b);
     else
         return pair<int, int>(0, 0);

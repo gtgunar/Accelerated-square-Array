@@ -12,90 +12,25 @@ using namespace std;
 // template <typename T>
 
 template <typename T>
-void controlMeres(int seed, int length, int writeRatio = 10)
+void compare(compareeInterFace<T> &other, int length, int loadlength, int writeRatio = 10)
 {
-    srand(seed);
+    srand(27);
+    vector<T> values;
+    int valuei = 0;
+    vector<int> tasks;
+    vector<int> indexes;
+    int currentSize = 0;
 
-    vector<T> values;
-    int valuei = 0;
-    vector<int> tasks;
-    vector<int> indexes;
-    int currentSize = 0;
-    for (int i = 0; i < length; i++) // generating task
+    for (int i = 0; i < length - loadlength; i++) // generating task
     {
         int job;
-        if (((rand() % writeRatio)))
-            job = (rand() % 4) * (currentSize > 10000);
+        if (currentSize)
+            if (!((rand() % writeRatio)))
+                job = (rand() % 2) * 3;
+            else
+                job = 1;
         else
-            job = 1 * (currentSize > 10000);
-        indexes.push_back(rand() % (currentSize + 1));
-        tasks.push_back(job);
-        switch (job)
-        {
-        case 0:
-        {
-            currentSize++;
-            values.push_back((rand() % 10000) / 100);
-        }
-        break;
-        case 1:
-        {
-            values.push_back((rand() % 10000) / 100);
-        }
-        case 3:
-        {
-            currentSize--;
-        }
-        break;
-        }
-    }
-    vector<T> accarrReads;
-    auto start = chrono::steady_clock::now().time_since_epoch().count();
-    accarr<float> alany;
-    for (int i = 0; i < length; i++) // doing task on Accelerated Array
-    {
-        switch (tasks[i])
-        {
-        case 0: // insert
-        {
-            alany.insert(indexes[i], values[valuei++]);
-        }
-        break;
-        case 1: // set
-        {
-            alany.setAt(indexes[i], values[valuei++]);
-        }
-        break;
-        case 2: // get
-        {
-            accarrReads.push_back(alany.getAt(indexes[i]));
-        }
-        break;
-        case 3: // erase
-        {
-            alany.erase(indexes[i]);
-        }
-        break;
-        }
-    }
-    cout << (chrono::steady_clock::now().time_since_epoch().count() - start) / 1000000.0 << " ms" << endl;
-}
-template <typename T>
-void compare(compareeInterFace<T> &other, int seed, int length, int writeRatio = 10)
-{
-    srand(seed);
-    vector<T> values;
-    int valuei = 0;
-    vector<int> tasks;
-    vector<int> indexes;
-    int currentSize = 0;
-    for (int i = 0; i < length; i++) // generating task
-    {
-        int job;
-        if (((rand() % writeRatio)))
-            job = (rand() % 4) * (currentSize > 10000);
-        else
-            job = 1 * (currentSize > 10000);
+            job = 0;
         indexes.push_back(rand() % (currentSize + (job == 0)));
         tasks.push_back(job);
         switch (job)
@@ -120,7 +55,11 @@ void compare(compareeInterFace<T> &other, int seed, int length, int writeRatio =
     vector<T> accarrReads;
     auto start = chrono::steady_clock::now().time_since_epoch().count();
     accarr<float> alany;
-    for (int i = 0; i < length; i++) // doing task on Accelerated Array
+    for (int i = 0; i < loadlength; i++)
+    {
+        other.addAt(indexes[i], 0);
+    }
+    for (int i = 0; i < length - loadlength; i++) // doing task on Accelerated Array
     {
         switch (tasks[i])
         {

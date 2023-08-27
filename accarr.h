@@ -101,7 +101,10 @@ public:
     {
         return refAt(index);
     }
-
+    T &operator[](int index) const
+    {
+        return refAt(index);
+    }
     void setAt(int index, const T &value) const
     {
         refAt(index) = value;
