@@ -25,7 +25,7 @@ void compare(compareeInterFace<T> &other, int length, int loadlength, int writeR
     {
         int job;
         if (currentSize)
-            if (!((rand() % writeRatio)))
+            if (((rand() % writeRatio)))
                 job = (rand() % 2) * 3;
             else
                 job = 1;
@@ -85,7 +85,9 @@ void compare(compareeInterFace<T> &other, int length, int loadlength, int writeR
         break;
         }
     }
-    cout << (chrono::steady_clock::now().time_since_epoch().count() - start) / 1000000.0 << " ms" << endl;
+    cout << (chrono::steady_clock::now().time_since_epoch().count() - start) / 1000000.0;
+
+    //  cout << "length: " << length << "ratio: " << writeRatio << "\t\t" << (chrono::steady_clock::now().time_since_epoch().count() - start) / 1000000.0 << " ms" << endl;
 }
 
 /*testfunc:
