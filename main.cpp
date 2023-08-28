@@ -35,21 +35,20 @@ public:
 int main()
 {
     accarrC<bigData> alap;
-    for (int asd = 0; asd < 5; asd++)
+    for (int asd = 0; asd < 4; asd++)
     {
-        tombC<bigData> b;
+
         // compare<float>(alap, 2000, 1000, 3); // OWN
         for (int i = 5; i < 10000; i *= 2)
         {
             for (int j = 1; j < 257; j *= 2)
             {
+                accarrC<bigData> b;
                 compare<bigData>(b, i * 2, i, j);
                 cout << " ";
             } // vector
             cout << endl;
         }
-        cout << endl
-             << endl;
     }
     /*
     measure:
