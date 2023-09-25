@@ -1,0 +1,155 @@
+total:480( 24 oldal szöveg)
+
+jegyzék:
+    Access/Elérés: helyben felülírás és kiolvasás
+    Mutation/Mutáció: beszúrás és törlés
+
+I.  Most 20/60+5 ábra
+        1. Jelenleg a szekvenciális tárolók között a dinamikus tömbök (vector és deque) egyeduralkodóknak
+    számítanak, annak ellenére, hogy ezeknél a beszúrás és törlés müvelet igen lassú, mivel a konstans
+    idejű index alapú elérés rendkívül nagy előny.
+    A dinamikus tömbök egyszerüen egymás utáni helyeken tárolják az adatokat több helyet lefoglalva,
+    mint ami kell, és középre beszúrás, törlés esetén elmozdítják az összes adattagot a nagyobbik( vector)
+    vagy közelebbi(deque) vége felől/felé.
+    *Vector és Deque ábra alapmüveletekkel*
+    Így az index alapú elérés legrosszabb esetben is O(1), míg legrosszabb és átlagos esetben Ordo=Theta(n).
+    Ugyanakkor fontos tényező, hogy a vektorok egyik, és a dequek mindkét, végén konstans időben lehet 
+    beszúrni és törölni, ha a memória újrafoglalástól eltekintünk. Ettől azért megengedett eltekiteni, mivel
+    az újrafoglalásnál általában kétszeres méretü új tömböt foglalunk, így ahogy a deque mérete tart a 
+    végtelenhez, az egy elemre jutó esély arra, hogy újra kell foglalni a memóriát tart a 1/n-hez, vagyis
+    az esély 0-hoz tart, míg a szükséges munka( másolás ) (1/n)*n, ami 1. Ugyanakkor az is egy lehetőség, hogy egy modern rendszerben, a közel betelt 
+    dequeket, egy háttérszál újrafoglalja, még az elött, hogy az átméretezés megakasztaná a programot.
+    
+        2.Ezeket a tároló adatszerkezeteket, a közvetlen felhasználáson túl, a komplexebb adatstruktúrák felépéítésére is használják.
+    *ábra Bfáról és unrolled listáról*
+    Így a modern adatbázisok hiába használnak fákat (többnyire a B fa valamely továbbfejlesztett változatát),
+    közvetve, még mindig függnek a felhasznált szekvenciális tárolók sebességétől. A valós sebességet 
+    általában a háttértárak elérési ideje határozza meg, viszont: az éppen használt adat a RAM-ban van 
+    tárolva, így az azokon történő módosítási idő a memóriában végzett müveleteken múlik, amit a tárolók nagyban meghatároznak.
+    Amennyiben az elérések aránya nagyon magas a mutációkhoz képest, előfordul az is, hogy a tömbbe beszúrás ideje
+    egy elfogadható szükséges rossznak van tekintve.
+    *táblázat becsült sebességről adott elemszám és mutáció/elérés arányról, Piros fekete fa szemben a deque-el*
+    
+    
+II. Új      60/140+8 ábra
+    Leírás
+        1. A gyorsított tömb, a beszúrásnál szükséges nagy mennyiségü adatmozgatást úy kerüli el, hogy az adatokat nem
+    egy darab nagy méretü vectorban, hanem gyökN, vagy gyökN+1 darab kisebb vectorban tárolja, amelyeknek
+    a hossza is gyökN, vagy gyökN+1.
+    *Ábra négyzet alakú estben*
+    Az adatok sorrendje, a elsősorban a tároló tömb helye sorrend szerint, majd a tárolón belüli pozíció.
+    Az alsó tömbök, cím szerint egy felső tömbben vannak tárolva.
+    *ábra tárolási és logikai sorrend összekapcsolására*
+    
+
+        2.Amikor ezeknek a közepébe beszúrás történik, az alsó vektor hosszával arányos adatmozgatás, csak gyökN darab
+    adat mozgatását teszi szükségessé.
+    A teljes tároló növekedése úgy történik, hogy először egy gyökN+1-edik vector van feltöltve alulról
+    fölfelé, majd minden meglévő vector végére egy új elem kerül. Mivel az elemek sörrendje elsősorban
+    a tartalmazó vectortól függ, így ugyannnak az elemnek ugyanott történő tárolását jelenti 
+    logikailag, ha az x-edik vector végén, vagy az x+1-edik vector elején van.
+    *ábra az új elem vagy törlésnél az elvett elem helyére*
+    Ahhoz hogy a kis, alsó vektorok közel gyökN méretüek maradjanak, szükséges, ezeket kiegyensúlyozni.
+    A kiegyensúlyozásnál, a többletet tartalmazó alsó tömb irányából, a következő elem helye felé történik.
+    A popFront vagy popBack müveletekkel, a többlet eltávolításra kerül, és bekerül a következő altömbbe.
+    *ábra egyensúlyozásra*
+    innen ugyanígy van továbbvíve amíg el nem ér a megfelelő helyre. Mivel a PopFront, PopBack, PushFront és PushBack
+    mind konstans idejü müveletek, és legfeljebb gyökN alsó tömbön kell átmenni, maga az egyensúlyozás is gyökN-es.
+    
+        3.szerkezet
+            miért négyzet: Mivel a kiegyensúlyozásnál az alsó tömbök hosszával arányos a beszúrás/törlés időigényének egyik része
+    és a felső tömb hosszával arányos a másik része, ez akkor minimális ha a kettő megegyezik, mivel
+    azonos területü téglalpok szomszédos oldalainak összege akkor minimális, ha egy négyzetről van szó.
+    *miért négyzet, vizuálisan*
+            kiegyensúlyozás
+    A beillesztés majd kiegyensúlyozás az alapötlet a piros fekete fák és sok más kiegyensúlyozott adatszerkezet mögött.
+    A kiegyensúlyozás kihasználja a dequek azon tulajdonságát, hogy a doublestack müveletek mind konstans amortizált időben
+    futnak le ( nagyobb tároló újrafoglalásától eltekintünk).hasonló koncepciók( balanszoló fák és hasított tömbfa)
+    A hasított tömbfa (HAT) közel gyökN darab gyökN hosszú elemet tartalmaz, de beszúrás/törlés esetén az egész adatszerkezetet
+    újraépíti.
+    
+        4.alapmüveletek
+        A gyorsított tömbre értelmezve van:
+        *tényleges tárolás ábrázolása*
+        Létrehozás
+            A felső, és a legelső alsó tömb lefoglalása, belső adatokat tároló constans méretü struktúra létrehozása
+            és adatokkal feltöltése. 
+        megsemmisítés
+            Az összes alsó majd a felső tömb megsemmisítése.
+        *közös ábra:létrehozás, törlés*
+        Beszúrás, adott indexre, ami alatt itt a logikai index értendő
+            Először megkeressük a tényleges adatszerkezet-beli helyet, ami a megfelelő felső tömböt,
+            és az azon belüli indexet jelöli. Ide megtörténik a beszúrás, majd a Balansceshift müvelet
+            eltolja a többlet elemet a növekedési pont felé. Ezek után a gyorsított tömb belső adatai
+            konstans időben újraszámításra kerülnek.
+        Törlés eltávolítás adott indexről
+            A beszúráshoz hasonlóan, megkeressük a tényleges helyet, GetRelPos-sal, megtörténik a törlés
+            majd a csökkenési hely felől megtörténik a kiegyensúlyozás BalanceShift-tel. Ezek után a
+            belső adatok újraszámításra kerülnek.
+        *közös ábra:Beszúrás törlés*
+        olvasás adott helyen
+            Tényleges hely megkeresése, majd elérése olvasásra.
+        Írás adott helyen
+            Tényleges hely megkeresése, majd elérése írásara.
+        GetRelPos:megkeresi az alsó vektort ahol a keresett elem van, és azon belül az indexet
+            i-edik elemre:
+            -0-nál 0,0
+            -ha a gyökN+1-edik vektor még nem telt be: i DIV gyökn,i MOD gyökN 
+            -Ha betelt: 
+                kiszámoljuk i DIV (gyökN+1)-et, ami, ha kisebb mint a vektorok végein tárolt többlet
+                akkor visszatér:i DIV (gyökn+1),i MOD (gyökN+1)
+                ha nem, akkor kivonjuk az így tárolt elemek számát, és a különbségből meglaradt értékkel,
+                a második esethez hasonlóan számolunk, azzal, a különbséggel, hogy a hányadoshoz hozzáadjuk
+                i DIV (gyökN+1)-et.
+            *ábra az esetekre, különösen, a harmadikra*
+        BalanceShift:
+            A mutáció helyét megkapja, és onnan, beillesztésnél a newPlace, törlésnél a deletePlace felé
+            ellentétes push és pop müveletekkel végighordja a többletet az alsó tömbök között
+            *ábra erre is*
+IV. elemzés
+        3×3(legjobb, átlagos, legrosszabb/omega, theta, ordo)
+        Létrehozás:
+        Constans darab memóriafoglalás( legalább 2,az első alsó és a felső tömbnek, de érdemes lehet többet)
+        Theta=Omega=Ordo=1
+        Törlés:
+        Felső tömb minden elemét felszabadítani, majd magát a felső tömböt is, gyökN+2 törlés összesen
+        Leggyorsabb esetben csak 1 alsó tömb van
+        Omega=1
+        Theta=Ordo=gyökN
+        Beszúrás:
+            ugyanez
+        helyben elérés:
+            
+            omega=theta=ordo=1
+V.  implementáció   0/120
+    osztályok
+        1.AccArr
+        2.MetaData
+        3.Alsó deque
+        
+
+VI. mérés   0/60
+    1.elemzés
+    2.felhasználhatóság
+
+VII.    összefoglalás/További lehetőségek 10/20
+    1. Fel nem merülő problémák
+        A modern processzorok prefetch és cache képességeik miatt, az 1-szeres indirekció
+        nem okoz számottevő lassulást
+    2. nem használható javítások
+        Mivel a belső dequek végére és elejére való beszúrás, vagy törlés, konstans idejü, viszont
+        a gyorsított tömbnél ez az esetek felében nem áll fenn, így az önmagába ágyazás, naív módszerekkel
+        nem jár gyorsulással.
+    3. Ötletek:
+    A naív implementáción túl, érdemes lehet a felső vector méretét annak a 2 hatványnak megválasztani, 
+    amely a méret gyökét alulról vagy felülről becsüli.
+        Ez azért lenne előnyös, mert az osztás és moduló müvelet helyettesíthetők bitshift, és bitmaszk 
+        müveletekkel, ezzel jelentősen csökkentve az index elérés konstans együtthatóját.
+    Érdemes lehet az új, növekvő vectort középre helyezni a felső vectorban, ezzel 
+    megfelezni a várható balanszolási idő felét, az esetek felében.
+        -A beillesztési idő fele az alsó vectorba illesztés, másik fele a balanszolás
+        -Az esetek felében kapja az új vector az elemeket
+        -Ha a vége felé balanszolunk akkor az átlagos távolság gyökN/2, ha a közepe felé,akkor gyökN/4
+    körkörös queue-stack az alsó tömbökhöz
+    GetRelPos nagyban gyorsítható polimorfizmussal, vagy függvény pointerekkel, amiket méretváltoztatáskor
+    változtatunk, egyébként csak mghívunk, ezzel konstans elérési idő együtthatóját tovább lehet csökkenteni
