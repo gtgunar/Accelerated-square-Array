@@ -29,7 +29,8 @@ I.  Most 20/60+5 ábra
     Amennyiben az elérések aránya nagyon magas a mutációkhoz képest, előfordul az is, hogy a tömbbe beszúrás ideje
     egy elfogadható szükséges rossznak van tekintve.
     *táblázat becsült sebességről adott elemszám és mutáció/elérés arányról, Piros fekete fa szemben a deque-el*
-    
+        3. Hash Tábla alegység
+        4. Összehasonlítás complexekkel
     
 II. Új      60/140+8 ábra
     Leírás
@@ -68,20 +69,42 @@ II. Új      60/140+8 ábra
     A hasított tömbfa (HAT) közel gyökN darab gyökN hosszú elemet tartalmaz, de beszúrás/törlés esetén az egész adatszerkezetet
     újraépíti.
     
-        4.alapmüveletek
+        4.alapmüveletek; PSEUDOKÓDDAL,IDE
         A gyorsított tömbre értelmezve van:
         *tényleges tárolás ábrázolása*
         Létrehozás
-            A felső, és a legelső alsó tömb lefoglalása, belső adatokat tároló constans méretü struktúra létrehozása
+            A felső, és a legelső alsó 2 tömb lefoglalása, belső adatokat tároló constans méretü struktúra létrehozása
             és adatokkal feltöltése. 
+            Create():
+            1   felső_tömb<-vector()
+            2   insert(felső_tömb,deque())
+            3   population<-0
+            4   popsqrt<-0
+            5   popextra<-0
+            
         megsemmisítés
             Az összes alsó majd a felső tömb megsemmisítése.
         *közös ábra:létrehozás, törlés*
+            Delete():
+            1   for minden i eleme felső_tömb -re
+            2       do delete(i)
+            3   delete(felső_tömb)
         Beszúrás, adott indexre, ami alatt itt a logikai index értendő
             Először megkeressük a tényleges adatszerkezet-beli helyet, ami a megfelelő felső tömböt,
             és az azon belüli indexet jelöli. Ide megtörténik a beszúrás, majd a Balansceshift müvelet
             eltolja a többlet elemet a növekedési pont felé. Ezek után a gyorsított tömb belső adatai
             konstans időben újraszámításra kerülnek.
+            
+        Beszúrás( index, value):
+    
+        1   place<-getRelPos(index)
+        2   insert(felső_tömb[first(place)], felső_tömb[second(place)], value)   
+        3   balanceShift(first(place), first( getInsertPlace( population)))
+        4   todo <- metaData.incPop()
+        5   if todo
+        6       then    push_back(felső_tömb, vector() )
+        7   incPop()
+    
         Törlés eltávolítás adott indexről
             A beszúráshoz hasonlóan, megkeressük a tényleges helyet, GetRelPos-sal, megtörténik a törlés
             majd a csökkenési hely felől megtörténik a kiegyensúlyozás BalanceShift-tel. Ezek után a
@@ -102,11 +125,62 @@ II. Új      60/140+8 ábra
                 a második esethez hasonlóan számolunk, azzal, a különbséggel, hogy a hányadoshoz hozzáadjuk
                 i DIV (gyökN+1)-et.
             *ábra az esetekre, különösen, a harmadikra*
+        GetRelPos(index):      
+        1   if popsqrt = 0        
+        2       then    return pair(0, 0)
+        3   if endLoad
+        4       then    return divmod(index, popsqrt)       
+        5   else       
+        6       if (popextra - popsqrt) > index / (popsqrt + 1)      
+        7           then    return divmod(index, popsqrt + 1)        
+        8       else            
+        9           uninced <- index - (popextra - popsqrt) * (popsqrt + 1)
+		10  		uc<-divmod(uninced,popsqrt)
+        11          return list(popextra - popsqrt + uc.first, uc.second)
+            
+        divmod(a,b):
+        1   if b=0
+        2   then    return list(0,0)
+        3   esle
+        4           return list(a/b,a%b)
+        
         BalanceShift:
             A mutáció helyét megkapja, és onnan, beillesztésnél a newPlace, törlésnél a deletePlace felé
             ellentétes push és pop müveletekkel végighordja a többletet az alsó tömbök között
             *ábra erre is*
-IV. elemzés
+        Keresés és egyb müveletek, amikre nem lett szánva
+        BalanceShift(from,towards):
+        
+        1   if from < towards
+        2       then    temp <- pop_back(felső_tömb[from])
+        3               for i <- from + 1 to towards
+        4                   do  push_front(felső_tömb[i])
+        5                       temp <- pop_back(felső_tömb[i])
+        6               temp <- push_front(felső_tömb[from])           
+        7   else if from > towards
+        8       then    temp <- pop_front(felső_tömb[from])
+        9               for i <- from + 1 to towards
+        10                  do  push_back(felső_tömb[i])
+        11                      temp <- pop_front(felső_tömb[i])
+        12              temp <- push_back(felső_tömb[from])            
+
+        incPop():
+        1   population<-population+1
+        2   popsqrt<-floor(sqrt(population))
+        3   popextra<-population-popsqrt*popsqrt
+        
+        
+        getInsertPlace:
+        növekedés helyét adja vissza, az implementációban mutációnál ki van számolva egy változóba, és le van kérdezve
+        getInsertPlace(population):
+        3   if      popextra =2 * popsqrt + 1
+        4       then    return list(popsqrt + 1, 0)
+        5   else if popextra < popsqrt
+        6       then    return list(popsqrt, popextra)
+        7   else
+        8       then    return list(popextra - popsqrt, popsqrt)
+        
+IV. elemzés PSEUDÓHOZ kötve
         3×3(legjobb, átlagos, legrosszabb/omega, theta, ordo)
         Létrehozás:
         Constans darab memóriafoglalás( legalább 2,az első alsó és a felső tömbnek, de érdemes lehet többet)
@@ -122,11 +196,143 @@ IV. elemzés
             
             omega=theta=ordo=1
 V.  implementáció   0/120
-    osztályok
+    osztályok;PSEUDOKÓDHOZ KÖTVE, rendes kóddal
+    A kényelmi és hibkereséshez füzödő függvények kihagyva
         1.AccArr
+        template <typename T> // depth=2
+class accarr
+{
+private:
+    accarr_innerData metaData;
+    deque<SQ<T> *> *content;
+    void balanceShift(int from, int to)
+    {
+        if (from < to)
+        {
+            T temp = ((*content)[from])->pop_back();
+            for (int i = from + 1; i < to; i++)
+            {
+                temp = ((*content)[i])->revplace(temp);
+            }
+            ((*content)[to])->push_front(temp);
+        }
+        else if (from > to)
+        {
+            T temp = ((*content)[from])->pop_front();
+            for (int i = from - 1; i > to; i--)
+            {
+                temp = ((*content)[i])->placing(temp);
+            }
+            ((*content)[to])->push_back(temp);
+        }
+    }
+
+public:
+    accarr() : metaData(0)
+    {
+        content = new deque<SQ<T> *>();
+        content->push_back(new SQ<T>());
+        content->push_back(new SQ<T>());
+    }
+
+    T &refAt(int index)
+    {
+        auto pos = metaData.getRelPos(index);
+        return ((*content)[pos.first])->access(pos.second);
+    }
+
+    void insert(int index, const T &value)
+    {
+        auto to = metaData.getRelPos(index);
+        ((*content)[to.first])->addTo(to.second, value);
+
+        balanceShift(to.first, metaData.getInsertPlace().first);
+
+        auto todo = metaData.incPop();
+        if (todo)
+            content->push_back(new SQ<T>());
+    }
+
+    void erase(int index)
+    {
+        auto to = metaData.getRelPos(index);
+        ((*content)[to.first])->deleteFrom(to.second);
+        balanceShift(metaData.getDeletePlace().first, to.first);
+        auto todo = metaData.decPop();
+        if (todo && (content->size()) > 2)
+            content->pop_back();
+    }
+
+    ~accarr()
+    {
+        for (auto i : *content)
+            delete i;
+        delete content;
+    }
+};
         2.MetaData
-        3.Alsó deque
         
+        3.Alsó deque
+         class SQ
+    {
+        deque<T> *data;
+    public:
+        SQ()
+        {
+            data = new deque<T>(0);
+        }
+        SQ(int _size)
+        {
+            data = new deque<T>(_size);
+        }
+
+        T &access(int index) // random access
+        {
+            return data->at(index);
+        }
+
+
+        void addTo(int index, const T &x)
+        {
+            data->insert(data->begin() + index, x);
+        }
+
+        void deleteFrom(int index)
+        {
+            data->erase(data->begin() + index);
+        }
+
+
+        void push_front(const T &x) { addTo(0, x); }
+        void push_back(const T &x) { addTo(data->size(), x); }
+
+        T pop_back()
+        {
+            T temp = access(data->size() - 1);
+            deleteFrom(data->size() - 1);
+            return temp;
+        }
+        T pop_front()
+        {
+            T temp = access(0);
+            deleteFrom(0);
+            return temp;
+        }
+        T placing(const T &x) // popfront+pushback
+        {
+            push_back(x);
+            return pop_front();
+        }
+
+        T revplace(const T &x)
+        {
+            push_front(x);
+            return pop_back();
+        }
+
+        ~SQ() { delete data; }
+
+    };
 
 VI. mérés   0/60
     1.elemzés
@@ -145,6 +351,7 @@ VII.    összefoglalás/További lehetőségek 10/20
     amely a méret gyökét alulról vagy felülről becsüli.
         Ez azért lenne előnyös, mert az osztás és moduló müvelet helyettesíthetők bitshift, és bitmaszk 
         müveletekkel, ezzel jelentősen csökkentve az index elérés konstans együtthatóját.
+    1×1->1×2->2×2->2×4->4×4->4×8->8×8
     Érdemes lehet az új, növekvő vectort középre helyezni a felső vectorban, ezzel 
     megfelezni a várható balanszolási idő felét, az esetek felében.
         -A beillesztési idő fele az alsó vectorba illesztés, másik fele a balanszolás
