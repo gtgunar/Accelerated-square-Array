@@ -100,7 +100,7 @@ II. Új      60/140+8 ábra
         1   place<-getRelPos(index)
         2   insert(felső_tömb[first(place)], felső_tömb[second(place)], value)   
         3   balanceShift(first(place), first( getInsertPlace( population)))
-        4   todo <- metaData.incPop()
+        4   todo <- incPop()
         5   if todo
         6       then    push_back(felső_tömb, vector() )
         7   incPop()
@@ -166,9 +166,10 @@ II. Új      60/140+8 ábra
 
         incPop():
         1   population<-population+1
-        2   popsqrt<-floor(sqrt(population))
-        3   popextra<-population-popsqrt*popsqrt
-        
+        2   oldSQRT<-popSQRT
+        3   popsqrt<-floor(sqrt(population))
+        4   popextra<-population-popsqrt*popsqrt
+        5   return oldSQRT=popSQRT
         
         getInsertPlace:
         növekedés helyét adja vissza, az implementációban mutációnál ki van számolva egy változóba, és le van kérdezve
@@ -184,18 +185,39 @@ IV. elemzés PSEUDÓHOZ kötve
         3×3(legjobb, átlagos, legrosszabb/omega, theta, ordo)
         Létrehozás:
         Constans darab memóriafoglalás( legalább 2,az első alsó és a felső tömbnek, de érdemes lehet többet)
+        pontosan 4 változó értékadással deklarálása, majd az egyik 1 lépésben módosítása
         Theta=Omega=Ordo=1
         Törlés:
         Felső tömb minden elemét felszabadítani, majd magát a felső tömböt is, gyökN+2 törlés összesen
         Leggyorsabb esetben csak 1 alsó tömb van
         Omega=1
         Theta=Ordo=gyökN
+        
         Beszúrás:
-            ugyanez
+        A beszúrás nem tartalmaz önmagában iterációt vagy rekurziót, így a hívott tagok döntik el a sebességét.
+        Kettő meghívott függvény van, ami nem konstans, a dequebe tetszőleges helyre illesztés és a balanceShift.
+        Várhatóan, és legrosszabb esetben is a dequebe szúrás gyökN időben fut le, mivel a deque közel gyökN hosszú
+        (vagy pontosan, vagy gyökN+1). Legjobb esetben a végére szúrunk be aminek köszönhetően konstans lehet a beszúrási idő.
+        A balanceShift legjobb esetben szükségtelen, de erre csak 1:gyökN-hez az esély (annak a valószínüsége, hogy az összes 
+        alsó tömb közül, pont a növelendőbe esik). Egyébként 2 lehetőség van, az hogy az adatszerkezet a végén növekszik, vagy, az, 
+        hogy egyenletesen elosztva, valamely tetszőleges alsó tömbben, egyenló eséllyel. Minegyikre 50% esély van.
+        Az első esetben "mean line segment length" alapján hossz/3, ami itt gyökN/3, másik esetben átlagos távolság végponttól, ami 
+        hossz/2, jelen esetben gyökN/2, így átlagosan 5/12-ed gyökN, vagyis théta gyökN-es.
+        Legrosszabb esetben, mindkét helyzetben, gyökN mozgatást igényel.
+        Omega=1
+        Theta=Ordo=gyökN
+        
         helyben elérés:
             
-            omega=theta=ordo=1
-V.  implementáció   0/120
+        omega=theta=ordo=1
+        incPop():
+        pontosan 5 szekvenciális lépés minden esetben
+        omega=theta=ordo=1
+        
+        getRelPos(index):
+        egy fix méretü döntési fát jár be, konstans mennyiségü feladattal minden ágon, így constans minen esetben
+        omega=theta=ordo=1
+V.  implementáció   
     osztályok;PSEUDOKÓDHOZ KÖTVE, rendes kóddal
     A kényelmi és hibkereséshez füzödő függvények kihagyva
         1.AccArr
