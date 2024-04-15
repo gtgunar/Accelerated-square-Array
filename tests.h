@@ -25,7 +25,7 @@ void doTask(vector<T> &controlSample, accarr<T> &tesztTarget, int task, int valu
 {
     if ((controlSample.size() > value) || ((value == 0) && (task == 1))) // invalid jobs skipped
     {
-        switch (1)
+        switch (task)
         {
         case 0:
         {
