@@ -1,23 +1,9 @@
 // Márton Attila, 2023
 #ifndef ACCARR_H
 #define ACCARR_H
-
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <deque>
-#include "SQ.h"
 #include "accarr_innerData.h"
+#include "SQ.h"
 
-using std::cout;
-using std::deque;
-using std::endl;
-using std::vector;
-using namespace std::chrono;
-using namespace std; /////////////////////////
-using namespace StationaryQueue;
-using std::begin;
-using std::end;
 template <typename T> // depth=2
 class accarr
 {
@@ -46,22 +32,10 @@ private:
             ((*content)[to])->push_back(temp);
         }
     }
-    void logRaw() const
-    {
-        for (int i = 0; i < content->size(); i++)
-        {
-            cout << "offset: " << content[i]->offset << endl;
-            for (int j = 0; j < content[i]->data->size(); j++)
-            {
-                cout << content[i]->data->at(j) << ", ";
-            }
-            cout << endl;
-        }
-        cout << endl;
-    }
+    
 
 public:
-    accarr() : metaData(0)
+    accarr() 
     {
         content = new deque<SQ<T> *>();
         content->push_back(new SQ<T>());
@@ -72,15 +46,15 @@ public:
     T &refAt(int index) const
     {
         auto pos = metaData.getRelPos(index);
-        return ((*content)[pos.first])->access(pos.second);
+        return ((*content)[pos.upper])->access(pos.lower);
     }
 
     void insert(int index, const T &value)
     {
         auto to = metaData.getRelPos(index);
-        ((*content)[to.first])->addTo(to.second, value);
+        ((*content)[to.upper])->addTo(to.lower, value);
 
-        balanceShift(to.first, metaData.getHotPlace().first);
+        balanceShift(to.upper, metaData.getHotPlace().upper);
 
         auto todo = metaData.incPop();
         if (todo)
@@ -90,8 +64,8 @@ public:
     void erase(int index)
     {
         auto to = metaData.getRelPos(index);
-        ((*content)[to.first])->deleteFrom(to.second);
-        balanceShift(metaData.getColdPlace().first, to.first);
+        ((*content)[to.upper])->deleteFrom(to.lower);
+        balanceShift(metaData.getColdPlace().upper, to.upper);
         auto todo = metaData.decPop();
         if (todo && (content->size()) > 2)
             content->pop_back();

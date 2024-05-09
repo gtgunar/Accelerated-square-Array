@@ -1,10 +1,8 @@
 #ifndef COMPAREE_H
 #define COMPAREE_H
-#include <vector>
-#include <list>
-#include <chrono>
-#include <deque>
-using namespace std;
+#include"accarr.h"
+template <typename T>
+class accarr;
 template <typename T>
 class compareeInterFace
 {
@@ -16,8 +14,14 @@ public:
     virtual void setAt(int index, T content)  = 0;
     virtual T    getAt(int index)       const = 0;
     virtual int  getSize()              const = 0;
-    compareeInterFace()  {}
-    ~compareeInterFace() {}
+    void log()                  
+        {
+            for (int i = 0; i < getSize();i++)
+                cout << getAt(i) << " ";
+            cout << endl;
+        }
+    compareeInterFace()                 {}
+    ~compareeInterFace()                {}
 };
 template <typename T>
 class accarrC : public compareeInterFace<T>
@@ -79,6 +83,7 @@ public:
                 target++;
             return *target;
         }
+        int getSize() const { return tartalom.size(); }
         listC() {}
 };
 template <typename T>
@@ -91,6 +96,7 @@ public:
     void removeAt(int index) { tartalom.erase(tartalom.begin() + index); }
     void setAt(int index, T content) { tartalom[index] = content; }
     T getAt(int index) const { return tartalom[index]; }
+    int getSize() const { return tartalom.size(); }
     dequeC() {}
 };
 #endif

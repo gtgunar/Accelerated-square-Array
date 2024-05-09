@@ -1,41 +1,13 @@
 #ifndef ACCAR_INNERDATA_H
 #define ACCAR_INNERDATA_H
-#include <tuple>
-#include<functional>
-#include <iostream>
-using std::cout;
-using std::deque;
-using std::endl;
-using std::pair;
-using std::vector;
-using namespace std::chrono;
-struct accarr_innerData;
-pair<int, int>
-divmod(int a, int b) // 519-584 before rework
-{
-    if (a && b)
-        return pair<int, int>(a / b, a % b);
-    else
-        return pair<int, int>(0, 0);
-}
+#include "utility.h"
 
-unsigned SQRT(unsigned x) // integer square root
-{
-    unsigned toret = 1;
-    unsigned mask = 0x80000000;
-    while (mask)
-    {
-        mask /= 2;
-        if (((toret + mask) * (toret + mask)) <= x)
-        {
-            toret = toret + mask;
-        }
-    }
-    return toret * (x > 0);
-}
-pair<int, int> ret0Pos      (int a, const accarr_innerData *target);
-pair<int, int> posNoEndload (int a, const accarr_innerData *target);
-pair<int, int> posEndload   (int a, const accarr_innerData *target);
+struct accarr_innerData;
+struct fplace; 
+// these fuiunctions are external becaulse function pointers to members are a mess
+fplace ret0Pos(int a, const accarr_innerData *target);
+fplace posNoEndload (int a, const accarr_innerData *target);
+fplace posEndload   (int a, const accarr_innerData *target);
 
 struct accarr_innerData
 {
@@ -43,69 +15,47 @@ struct accarr_innerData
     int popsqrt;       // floor(sqrt(population)) <=> sqrt(popsn)
     int popextra;      // current value of extra population, population-popsn
     int extraCapacity; // 2*n
-	uint64_t reciprocOfpopsqrt;
-	uint64_t reciprocOfpopsqrtp1;
-    pair<int, int> (*activeGetPos)(int a, const accarr_innerData *target); // handle on create and insert/delete
 
-    pair<int, int> hotPlace;
-    pair<int, int> coldPlace;
-    bool endLoad; // is the end the loadingplace
+    fplace hotPlace;
+    fplace coldPlace;
 
-    
+    fplace (*activeGetPos)(int a, const accarr_innerData *target); // handle on create and insert/delete
+    bool endLoad;                                                  // is the end the loadingplace
 
 public:
-    int getPop() const                          {return population  ;}
-    pair<int, int> getHotPlace() const          {return hotPlace    ;}
-    pair<int, int> getColdPlace() const         {return coldPlace   ;}
-    pair<int, int> getRelPos(int index) const   {return (*activeGetPos)(index,this);}
-    pair<int, int> legacy_getRelPos(int index) const
-    {
-        if (population == 0)
-            return ret0Pos(index,this);
-        else if (endLoad) // is? the loading happen at the end
-            return posNoEndload(index, this);
-        else
-            return posEndload(index, this);
-    }
+    int getPop() const                  {return population  ;}
+    fplace getHotPlace() const          {return hotPlace    ;}
+    fplace getColdPlace() const         {return coldPlace   ;}
+    fplace getRelPos(int index) const   {return (*activeGetPos)(index,this);}
 
-    pair<int, int> calcHotPlace() const         {
-        if (popextra == 2 * popsqrt + 1)
-        {
-            return pair<int, int>(popsqrt + 1, 0);
-        }
-        else if (popextra < popsqrt)
-        {
-            return pair<int, int>(popsqrt, popextra);
-        }
+
+    fplace calcHotPlace()          
+    {
+        if (popextra >extraCapacity)
+            return fplace(popsqrt + 1, 0);
+        else if (endLoad)
+            return fplace(popsqrt, popextra);
         else
-        {
-            return pair<int, int>(popextra - popsqrt, popsqrt);
-        }
+            return fplace(popextra - popsqrt, popsqrt);
     }
 
     bool recalculate()
     {
-        bool toret = false;
-        auto oldSQRT = popsqrt;
+        int oldSQRT = popsqrt;
         popsqrt = SQRT(population);
         auto incSQRT = SQRT(population + 1);
-        if (oldSQRT != incSQRT)
-        {
-            toret = true;
-        }
+        bool changedSquare = (oldSQRT != incSQRT);
+
         popextra = population - popsqrt * popsqrt;
         extraCapacity = 2 * popsqrt;
         endLoad = popextra < popsqrt;
         coldPlace = hotPlace;
-        if (population >= 1)
-        {
 
+        if (population >= 1)
             hotPlace = calcHotPlace();
-        }
         else
-        {
-            hotPlace = pair<int, int>(0, 0);
-        }
+            hotPlace = fplace(0, 0);
+
         if (population == 0)
             activeGetPos = &ret0Pos;
         else if (endLoad) // is? the loading happen at the end
@@ -113,14 +63,14 @@ public:
         else
             activeGetPos = &posEndload;
 
-        return toret;
+        return changedSquare;
     }
 
-    accarr_innerData(int pop)
+    accarr_innerData()
     {
-        population = pop;
+        population = 0;
         recalculate();
-        coldPlace = hotPlace;
+        coldPlace = fplace(0,0);
         activeGetPos = &ret0Pos;
     }
 
@@ -128,17 +78,18 @@ public:
     {
         coldPlace = hotPlace;
         population++;
-        return recalculate();
+        bool sizeChanged = recalculate();
+        return sizeChanged;
     }
 
     bool decPop() // assumed to be called from delete
     {
-        population--;
-        population--;
+        population-=2;
         recalculate();
         coldPlace = hotPlace;
         population++;
-        return recalculate() && population;
+        bool sizeChanged = recalculate();
+        return sizeChanged && population;
     }
 
     void logMe() const
@@ -147,56 +98,38 @@ public:
              << "popsqrt: " << popsqrt << endl
              << "popextra: " << popextra << endl
              << "extraCapacity: " << extraCapacity << endl
-             << "hotPlaceBlock: " << hotPlace.first << endl
-             << "hotPlaceInner: " << hotPlace.second << endl
-             << "coldPlaceBlock: " << coldPlace.first << endl
-             << "coldPlaceInner: " << coldPlace.second << endl
+             << "hotPlaceBlock: " << hotPlace.upper << endl
+             << "hotPlaceInner: " << hotPlace.lower << endl
+             << "coldPlaceBlock: " << coldPlace.upper << endl
+             << "coldPlaceInner: " << coldPlace.lower << endl
              << "endload?:" << endLoad << endl;
         for (int i = 0; i < population; i++)
         {
-            cout << i << ":" << getRelPos(i).first << "," << getRelPos(i).second << ";" << endl;
+            cout << i << ":" << getRelPos(i).upper << "," << getRelPos(i).lower << ";" << endl;
         }
     }
 };
-pair<int, int> ret0Pos(int a, const accarr_innerData *target)
+
+fplace ret0Pos(int a, const accarr_innerData *target)
 {
-    return pair<int, int>(0, 0);
+    return fplace(0, 0);
 }
-pair<int, int> posNoEndload(int a, const accarr_innerData *target)
+fplace posNoEndload(int a, const accarr_innerData *target)
 {
     return divmod(a, target->popsqrt);
 }
-pair<int, int> posEndload(int a, const accarr_innerData *target)
+fplace posEndload(int a, const accarr_innerData *target)
 {
     if ((target->popextra - target->popsqrt) > a / (target->popsqrt + 1)) // is? loading within the incremented block
     {
-        return divmod(a, target->popsqrt + 1);
+        return divmod(a,  target->popsqrt + 1);
     }
     else
     {
         int uninced = a - (target->popextra - target->popsqrt) * (target->popsqrt + 1);                                   // remaining population stored in nonincremented zone
-        return pair<int, int>(target->popextra - target->popsqrt + uninced / target->popsqrt, uninced % target->popsqrt); // inc-ed length+rest
+        return divmod(uninced, target->popsqrt) + (target->popextra - target->popsqrt);               // inc-ed length+rest
     }
 }
 
-void teszting()
-{
-    accarr_innerData alany(0);
-    alany.logMe();
-    for (int i = 0; i < 18; i++)
-    {
-        cout << "/////////////" << endl;
-        alany.incPop();
-        alany.logMe();
-        cout << "/////////////" << endl;
-    }
-    for (int i = 0; i < 18; i++)
-    {
-        cout << "/////////////" << endl;
-        alany.logMe();
-        alany.decPop();
-        cout << "/////////////" << endl;
-    }
-}
 
 #endif
